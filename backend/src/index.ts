@@ -20,7 +20,7 @@ async function bootstrap(): Promise<void> {
 ╠══════════════════════════════════════════════════════╣
 ║  Environment : ${(process.env.NODE_ENV || 'development').padEnd(37)} ║
 ║  Port        : ${String(PORT).padEnd(37)} ║
-║  Collector ID: c_apmc_spice_v1_09x                     ║
+║  Collector ID: c_apmc_spice_v1_09x                   ║
 ║  API Base    : /api/sync/trigger                     ║
 ╚══════════════════════════════════════════════════════╝
       `);

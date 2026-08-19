@@ -71,33 +71,52 @@ export class GeminiService implements IGeminiService {
       throw new Error('GEMINI_API_KEY is missing or invalid. Please configure your API key in environment secrets.');
     }
 
-    const payload = {
+    // Standard Gemini REST Payload compatible across all v1beta models
+    const standardPayload = {
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        thinkingConfig: { thinkingLevel: 'HIGH' }
-      },
       systemInstruction: {
         parts: [{ text: 'You are an expert agrarian market intelligence system helping farmers maximize crop revenue while minimizing storage and volatility risks.' }]
       }
     };
 
+    // Thinking mode payload for 3.1 Pro / 2.5 Flash Thinking
+    const thinkingPayload = {
+      ...standardPayload,
+      generationConfig: {
+        thinkingConfig: { thinkingLevel: 'HIGH' }
+      }
+    };
+
+    // 1. Try Gemini 2.5 Flash (Production Fast & Reliable)
     try {
-      // Try primary model: gemini-3.1-pro-preview with thinking mode HIGH
       const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${this.apiKey}`,
-        payload,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`,
+        standardPayload,
         { headers: { 'Content-Type': 'application/json' }, timeout: 20000 }
       );
       return response.data;
-    } catch (primaryError: any) {
-      console.warn('Primary Gemini model failed, trying fallback gemini-3.7-flash:', primaryError.message);
-      // Fallback model: gemini-3.7-flash
-      const fallbackResponse = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${this.apiKey}`,
-        payload,
+    } catch (err1: any) {
+      console.warn('gemini-2.5-flash failed, trying gemini-2.0-flash:', err1.message);
+    }
+
+    // 2. Try Gemini 2.0 Flash
+    try {
+      const response = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.apiKey}`,
+        standardPayload,
         { headers: { 'Content-Type': 'application/json' }, timeout: 20000 }
       );
-      return fallbackResponse.data;
+      return response.data;
+    } catch (err2: any) {
+      console.warn('gemini-2.0-flash failed, trying gemini-1.5-flash:', err2.message);
     }
+
+    // 3. Try Gemini 1.5 Flash (Universal Stable Fallback)
+    const fallbackResponse = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`,
+      standardPayload,
+      { headers: { 'Content-Type': 'application/json' }, timeout: 20000 }
+    );
+    return fallbackResponse.data;
   }
 }
