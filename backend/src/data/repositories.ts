@@ -89,12 +89,12 @@ export class GeminiService implements IGeminiService {
       ? `[Target Language: ${targetLang}]\nRespond exclusively in ${targetLang} using simple, encouraging agrarian terminology for smallholder farmers.\n\n${prompt}`
       : prompt;
 
-    // Quota-Optimized Generation Config (Prevents token budget exhaustion)
+    // Production Quota-Optimized Generation Config (Balanced thinking + complete output text)
     const payload = {
       contents: [{ parts: [{ text: fullPrompt }] }],
       generationConfig: {
-        maxOutputTokens: 450, // Cap response length to conserve token quota
-        temperature: 0.3,     // Deterministic advisory outputs
+        maxOutputTokens: 1000, // Balanced budget (~400 thinking tokens + ~600 output text tokens)
+        temperature: 0.3,      // Deterministic advisory outputs
         thinkingConfig: {
           thinkingLevel: 'LOW' // Fast reasoning without token bloat
         }
