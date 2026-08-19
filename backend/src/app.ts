@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import compression from 'compression';
 
-import { BrightDataService } from './data/repositories';
+import { BrightDataService, GeminiService } from './data/repositories';
 import { AgriSyncController } from './controllers/AgriSyncController';
 
 /**
@@ -59,10 +59,11 @@ export function createApp(): Application {
   app.use(express.json({ limit: '1mb' }));
   app.use(compression());
 
-  // ─── Dependency Injection Setup (Stateless Gateway) ──────────────────────
+  // ─── Dependency Injection Setup (Zero Mobile Keys Architecture) ─────────
   const BRIGHTDATA_API_KEY = process.env.BRIGHTDATA_API_KEY || '';
   const BRIGHTDATA_COLLECTOR_ID = process.env.BRIGHTDATA_COLLECTOR_ID || 'c_apmc_spice_v1_09x';
   const TARGET_APMC_URL = process.env.TARGET_APMC_URL || 'https://www.indianspices.com/marketing/price/domestic/current-market-price.html';
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
   const brightDataService = new BrightDataService(
     BRIGHTDATA_API_KEY,
@@ -70,12 +71,15 @@ export function createApp(): Application {
     TARGET_APMC_URL
   );
 
-  const controller = new AgriSyncController(brightDataService, BRIGHTDATA_COLLECTOR_ID);
+  const geminiService = new GeminiService(GEMINI_API_KEY);
+
+  const controller = new AgriSyncController(brightDataService, geminiService, BRIGHTDATA_COLLECTOR_ID);
 
   // ─── Route Mapping ─────────────────────────────────────────────────────
   app.get('/', controller.getHealth);
   app.post('/api/sync/trigger', controller.triggerSync);
   app.get('/api/sync/status/:id', controller.getSyncStatus);
+  app.post('/api/advisory', controller.generateAdvisory);
   app.post('/api/webhook/dca', controller.handleWebhook);
 
   return app;
