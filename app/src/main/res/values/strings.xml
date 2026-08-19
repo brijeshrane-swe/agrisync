@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">AgriSync</string>
+    <string name="app_tagline">Self-Healing APMC Market Intelligence</string>
+    <string name="sync_button">Sync Live Data</string>
+    <string name="filter_all">All Markets</string>
+    <string name="self_healing_status">Scraper Studio Self-Healing</string>
+    <string name="ai_advisory">Farmer AI Market Advisory</string>
+    <string name="offline_badge">Offline Mode (Cached SQLite)</string>
+    <string name="live_badge">Bright Data Scraper Studio (DCA)</string>
+</resources>

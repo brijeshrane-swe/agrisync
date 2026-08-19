@@ -1,0 +1,13 @@
+# Cursor Rules - AgriSync Context Integration
+
+1. **Context Management System**:
+   - Before executing tasks, read `.context/CORE_RULES.md`, `.context/ARCHITECTURE.md`, and `.context/PROGRESS.md`.
+   - Adhere strictly to the Clean Architecture boundaries (Domain, Data, UI).
+   - The local Room database is the single source of truth; do not query network directly from UI.
+   - After completing coding tasks, update `.context/PROGRESS.md` with finished items, active state, and gotchas.
+
+2. **Android & Kotlin Directives**:
+   - Use Jetpack Compose Material 3 with `enableEdgeToEdge()`.
+   - Test tags are required on interactive elements (`Modifier.testTag("...")`).
+   - Use Kotlin Coroutines and StateFlow for state management.
+   - Do NOT commit sensitive keys to git. All credentials use `.env` placeholders and `BuildConfig`.

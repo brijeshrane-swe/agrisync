@@ -1,0 +1,38 @@
+*.iml
+.gradle
+.kotlin
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+Thumbs.db
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+debug.keystore
+
+# Sensitive Environment Secrets (NEVER COMMIT)
+.env
+.env.local
+.env.production
+*.jks
+*.keystore
+my-upload-key.jks
+google-services.json
+
+# Backend Node & TypeScript Build Artifacts
+/backend/node_modules
+/backend/dist
+
+# Private Internal Documentation (Not for public git)
+/backend/DEPLOYMENT_GUIDE.md
+.gemini/
+.agents/
+.context/

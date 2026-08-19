@@ -1,0 +1,6 @@
+{
+  "name": "AgriSync",
+  "description": "Offline-first agricultural commodity market intelligence app powered by Bright Data Scraper Studio self-healing scrapers and Gemini AI reasoning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
