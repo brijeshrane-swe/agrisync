@@ -31,8 +31,8 @@ google-services.json
 /backend/node_modules
 /backend/dist
 
-# Private Internal Documentation (Not for public git)
-/backend/DEPLOYMENT_GUIDE.md
+# Private Internal Documentation, Schemas & Scratch Notes (Excluded from Git)
+/private_docs/
 .gemini/
 .agents/
 .context/
