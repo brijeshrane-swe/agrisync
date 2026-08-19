@@ -22,6 +22,10 @@
   "author": "AgriSync Team",
   "license": "MIT",
   "dependencies": {
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.13.4",
     "axios": "^1.7.9",
     "compression": "^1.7.5",
     "cors": "^2.8.5",
@@ -29,16 +33,12 @@
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",
+    "typescript": "^5.7.3",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@ljharb/tsconfig": "^0.2.3",
-    "@types/compression": "^1.7.5",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/node": "^22.13.4",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.7.3"
+    "ts-node-dev": "^2.0.0"
   },
   "engines": {
     "node": ">=20.0.0"
