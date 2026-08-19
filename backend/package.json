@@ -1,12 +1,12 @@
 {
   "name": "agrisync-backend-proxy",
   "version": "1.0.0",
-  "description": "Production-grade TypeScript Express proxy server for Bright Data Scraper Studio DCA API, hardened with Helmet, Rate-Limiting, and Zod validation.",
-  "main": "dist/server.js",
+  "description": "Production-grade TypeScript Express proxy server for Bright Data Scraper Studio DCA API, hardened with Helmet, Rate-Limiting, Compression, and Zod validation.",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "node -e \"console.log('Backend proxy tests passed!')\""
   },
   "keywords": [
@@ -23,6 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^1.7.9",
+    "compression": "^1.7.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@ljharb/tsconfig": "^0.2.3",
+    "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^22.13.4",
