@@ -21,6 +21,10 @@ export class AgriSyncController {
   ) {}
 
   getHealth = (_req: Request, res: Response): void => {
+    const maskedId = this.collectorId.length > 8
+      ? `${this.collectorId.substring(0, 6)}***${this.collectorId.substring(this.collectorId.length - 2)}`
+      : this.collectorId;
+
     res.json({
       service: 'AgriSync Bright Data & Gemini Proxy (Zero Mobile Keys Architecture)',
       status: 'ONLINE',
@@ -28,7 +32,7 @@ export class AgriSyncController {
       security: 'Helmet + RateLimiter + Zod Hardened + Server-Side Secrets',
       hackathon: 'Into the Scrape-Verse (Aug 17-23, 2026)',
       languagesSupported: ['en', 'hi', 'ml', 'kn', 'ta', 'te', 'mr'],
-      collectorId: this.collectorId,
+      collectorId: maskedId,
       timestamp: new Date().toISOString()
     });
   };
