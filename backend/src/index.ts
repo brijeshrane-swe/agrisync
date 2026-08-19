@@ -13,6 +13,11 @@ async function bootstrap(): Promise<void> {
     const app = createApp();
     const PORT = process.env.PORT || 3000;
 
+    const rawCollectorId = process.env.BRIGHTDATA_COLLECTOR_ID || 'c_apmc_spice_v1_09x';
+    const maskedCollectorId = rawCollectorId.length > 8
+      ? `${rawCollectorId.substring(0, 6)}***${rawCollectorId.substring(rawCollectorId.length - 2)}`
+      : rawCollectorId;
+
     const server = app.listen(PORT, () => {
       console.log(`
 ╔══════════════════════════════════════════════════════╗
@@ -20,7 +25,7 @@ async function bootstrap(): Promise<void> {
 ╠══════════════════════════════════════════════════════╣
 ║  Environment : ${(process.env.NODE_ENV || 'development').padEnd(37)} ║
 ║  Port        : ${String(PORT).padEnd(37)} ║
-║  Collector ID: c_apmc_spice_v1_09x                   ║
+║  Collector ID: ${maskedCollectorId.padEnd(37)} ║
 ║  API Base    : /api/sync/trigger                     ║
 ╚══════════════════════════════════════════════════════╝
       `);
