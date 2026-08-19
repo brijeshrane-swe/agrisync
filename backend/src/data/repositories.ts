@@ -75,7 +75,7 @@ export class GeminiService implements IGeminiService {
     const languageNames: Record<string, string> = {
       hi: 'Hindi (हिंदी)',
       ml: 'Malayalam (മലയാളം)',
-      kn: 'Kannada (ಕನ್ನಡ)',
+      kn: 'Kannada (कನ್ನಡ)',
       ta: 'Tamil (தமிழ்)',
       te: 'Telugu (తెలుగు)',
       mr: 'Marathi (मराठी)',
@@ -93,43 +93,43 @@ export class GeminiService implements IGeminiService {
     const payload = {
       contents: [{ parts: [{ text: fullPrompt }] }],
       generationConfig: {
-        maxOutputTokens: 1000, // Balanced budget (~400 thinking tokens + ~600 output text tokens)
-        temperature: 0.3,      // Deterministic advisory outputs
+        maxOutputTokens: 1000,
+        temperature: 0.3,
         thinkingConfig: {
-          thinkingLevel: 'LOW' // Fast reasoning without token bloat
+          thinkingLevel: 'LOW'
         }
       }
     };
 
-    // 1. Try Primary: gemini-3.6-flash
+    // 1. Try Primary: gemini-3.6-flash (45s HTTP timeout for deep regional text generation)
     try {
       const response = await axios.post(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${this.apiKey}`,
         payload,
-        { headers: { 'Content-Type': 'application/json' }, timeout: 20000 }
+        { headers: { 'Content-Type': 'application/json' }, timeout: 45000 }
       );
       return response.data;
     } catch (err1: any) {
       console.warn('gemini-3.6-flash failed, trying gemini-3.7-flash:', err1.message);
     }
 
-    // 2. Try Secondary: gemini-3.7-flash
+    // 2. Try Secondary: gemini-3.7-flash (45s HTTP timeout)
     try {
       const response = await axios.post(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${this.apiKey}`,
         payload,
-        { headers: { 'Content-Type': 'application/json' }, timeout: 20000 }
+        { headers: { 'Content-Type': 'application/json' }, timeout: 45000 }
       );
       return response.data;
     } catch (err2: any) {
       console.warn('gemini-3.7-flash failed, trying gemini-flash-latest:', err2.message);
     }
 
-    // 3. Fallback: gemini-flash-latest
+    // 3. Fallback: gemini-flash-latest (45s HTTP timeout)
     const fallbackResponse = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${this.apiKey}`,
       payload,
-      { headers: { 'Content-Type': 'application/json' }, timeout: 20000 }
+      { headers: { 'Content-Type': 'application/json' }, timeout: 45000 }
     );
     return fallbackResponse.data;
   }
