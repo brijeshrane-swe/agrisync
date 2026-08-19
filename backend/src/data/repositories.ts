@@ -71,8 +71,16 @@ export class GeminiService implements IGeminiService {
       throw new Error('GEMINI_API_KEY is missing or invalid. Please configure your API key in environment secrets.');
     }
 
+    // Quota-Optimized Generation Config (Prevents token budget exhaustion)
     const payload = {
-      contents: [{ parts: [{ text: prompt }] }]
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        maxOutputTokens: 400, // Strict cap to prevent runaway token usage
+        temperature: 0.3,     // Deterministic advisory outputs
+        thinkingConfig: {
+          thinkingLevel: 'LOW' // Fast reasoning without token bloat
+        }
+      }
     };
 
     // 1. Try Primary: gemini-3.6-flash
@@ -99,7 +107,7 @@ export class GeminiService implements IGeminiService {
       console.warn('gemini-3.7-flash failed, trying gemini-flash-latest:', err2.message);
     }
 
-    // 3. Fallback: gemini-flash-latest (Universal alias guaranteed never to 404!)
+    // 3. Fallback: gemini-flash-latest
     const fallbackResponse = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${this.apiKey}`,
       payload,
