@@ -71,23 +71,12 @@ export class GeminiService implements IGeminiService {
       throw new Error('GEMINI_API_KEY is missing or invalid. Please configure your API key in environment secrets.');
     }
 
-    // Standard Gemini REST Payload compatible across all v1beta models
+    // Standard Gemini REST Payload
     const standardPayload = {
-      contents: [{ parts: [{ text: prompt }] }],
-      systemInstruction: {
-        parts: [{ text: 'You are an expert agrarian market intelligence system helping farmers maximize crop revenue while minimizing storage and volatility risks.' }]
-      }
+      contents: [{ parts: [{ text: prompt }] }]
     };
 
-    // Thinking mode payload for 3.1 Pro / 2.5 Flash Thinking
-    const thinkingPayload = {
-      ...standardPayload,
-      generationConfig: {
-        thinkingConfig: { thinkingLevel: 'HIGH' }
-      }
-    };
-
-    // 1. Try Gemini 2.5 Flash (Production Fast & Reliable)
+    // 1. Try Gemini 2.5 Flash (Latest General Availability)
     try {
       const response = await axios.post(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${this.apiKey}`,
@@ -111,7 +100,7 @@ export class GeminiService implements IGeminiService {
       console.warn('gemini-2.0-flash failed, trying gemini-1.5-flash:', err2.message);
     }
 
-    // 3. Try Gemini 1.5 Flash (Universal Stable Fallback)
+    // 3. Try Gemini 1.5 Flash (Universal Stable Baseline)
     const fallbackResponse = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`,
       standardPayload,
