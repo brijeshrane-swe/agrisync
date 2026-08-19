@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { IBrightDataService, ICacheRepository } from '../domain/repositories';
-import { getMockSeedCommodities } from '../data/seedData';
 import { z } from 'zod';
 
 const WebhookSchema = z.object({
@@ -20,7 +19,7 @@ export class AgriSyncController {
     res.json({
       service: 'AgriSync Bright Data DCA Proxy (Clean Architecture TypeScript)',
       status: 'ONLINE',
-      architecture: 'Domain -> Data -> Presentation (Clean Split)',
+      architecture: 'Domain -> Data -> Presentation (Strict SOLID)',
       security: 'Helmet + RateLimiter + Zod Hardened',
       hackathon: 'Into the Scrape-Verse (Aug 17-23, 2026)',
       collectorId: this.collectorId,
@@ -33,10 +32,10 @@ export class AgriSyncController {
       const result = await this.brightDataService.triggerDCABatch();
       res.json(result);
     } catch (error: any) {
-      console.error('Error triggering DCA batch scrape:', error.response?.data || error.message);
+      console.error('Error triggering DCA batch scrape:', error.message);
       res.status(502).json({
         error: 'Failed to trigger Bright Data scraper job',
-        details: error.response?.data || error.message
+        details: error.message || error.response?.data
       });
     }
   };
@@ -49,7 +48,7 @@ export class AgriSyncController {
     } catch (error: any) {
       res.status(500).json({
         error: 'Failed to retrieve dataset from Bright Data',
-        details: error.response?.data || error.message
+        details: error.message || error.response?.data
       });
     }
   };
@@ -65,17 +64,13 @@ export class AgriSyncController {
     const targetId = payload.id || payload.collection_id;
     console.log('Received DCA Webhook notification for collection:', targetId);
 
-    if (targetId) {
+    if (targetId && payload.data) {
       this.cache.set(targetId, {
         status: 'READY',
         timestamp: Date.now(),
-        data: payload.data || getMockSeedCommodities()
+        data: payload.data
       });
     }
     res.status(200).json({ status: 'ACCEPTED' });
-  };
-
-  getCommodities = (_req: Request, res: Response): void => {
-    res.json(getMockSeedCommodities());
   };
 }

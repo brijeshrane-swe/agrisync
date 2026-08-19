@@ -50,7 +50,6 @@ app.get('/', controller.getHealth);
 app.post('/api/sync/trigger', controller.triggerSync);
 app.get('/api/sync/status/:id', controller.getSyncStatus);
 app.post('/api/webhook/dca', controller.handleWebhook);
-app.get('/api/commodities', controller.getCommodities);
 
 app.listen(PORT, () => {
   console.log(`[TypeScript Clean Architecture] AgriSync Backend running on port ${PORT}`);

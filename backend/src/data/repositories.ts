@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { IBrightDataService, ICacheRepository } from '../domain/repositories';
 import { CacheEntry, DCATriggerResponse } from '../domain/models';
-import { getMockSeedCommodities } from './seedData';
 
 export class InMemoryCacheRepository implements ICacheRepository {
   private cache = new Map<string, CacheEntry>();
@@ -28,22 +27,8 @@ export class BrightDataService implements IBrightDataService {
   ) {}
 
   async triggerDCABatch(): Promise<DCATriggerResponse> {
-    const isKeyPlaceholder = !this.apiKey || this.apiKey.includes('YOUR_') || this.apiKey.includes('CHANGE_ME');
-
-    if (isKeyPlaceholder) {
-      const fakeCollectionId = `j_batch_${Math.floor(100000 + Math.random() * 900000)}`;
-      this.cache.set(fakeCollectionId, {
-        status: 'READY',
-        timestamp: Date.now(),
-        data: getMockSeedCommodities()
-      });
-
-      return {
-        collection_id: fakeCollectionId,
-        status: 'SCHEDULED',
-        start_eta: '2s',
-        note: 'Demo mode: using calibrated APMC seed data. Set BRIGHTDATA_API_KEY on Render for live triggers.'
-      };
+    if (!this.apiKey || this.apiKey.includes('YOUR_')) {
+      throw new Error('BRIGHTDATA_API_KEY is missing or invalid. Please configure your API key in environment secrets.');
     }
 
     const response = await axios.post(
@@ -54,7 +39,7 @@ export class BrightDataService implements IBrightDataService {
           Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json'
         },
-        timeout: 10000
+        timeout: 15000
       }
     );
 
@@ -68,17 +53,18 @@ export class BrightDataService implements IBrightDataService {
   }
 
   async getDCADataset(collectionId: string): Promise<{ status: string; collection_id: string; items?: any; message?: string }> {
-    const isKeyPlaceholder = !this.apiKey || this.apiKey.includes('YOUR_');
+    if (!this.apiKey || this.apiKey.includes('YOUR_')) {
+      throw new Error('BRIGHTDATA_API_KEY is missing or invalid. Please configure your API key in environment secrets.');
+    }
 
-    if (isKeyPlaceholder || this.cache.has(collectionId)) {
-      const cached = this.cache.get(collectionId);
-      if (cached && cached.data) {
-        return {
-          status: 'READY',
-          collection_id: collectionId,
-          items: cached.data
-        };
-      }
+    // Check if we have an in-memory cached result from a webhook or previous fetch
+    const cached = this.cache.get(collectionId);
+    if (cached && cached.data) {
+      return {
+        status: 'READY',
+        collection_id: collectionId,
+        items: cached.data
+      };
     }
 
     try {
@@ -88,9 +74,16 @@ export class BrightDataService implements IBrightDataService {
           headers: {
             Authorization: `Bearer ${this.apiKey}`
           },
-          timeout: 10000
+          timeout: 15000
         }
       );
+
+      // Cache the dataset on successful fetch
+      this.cache.set(collectionId, {
+        status: 'READY',
+        timestamp: Date.now(),
+        data: response.data
+      });
 
       return {
         status: 'READY',
