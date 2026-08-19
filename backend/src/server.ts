@@ -12,9 +12,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security Middleware (OWASP Compliant)
-app.use(helmet());
-app.use(cors());
+// Security Middleware (OWASP Compliant Hardened Configuration)
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allows mobile & web clients to load JSON API payloads
+    contentSecurityPolicy: false // API server returning JSON payloads
+  })
+);
+
+app.use(
+  cors({
+    origin: '*', // Allows native Android app and remote web dashboard clients
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  })
+);
+
 app.use(express.json({ limit: '1mb' }));
 
 // Rate Limiter (Max 100 requests per 15 mins per IP)
