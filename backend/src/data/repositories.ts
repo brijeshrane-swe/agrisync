@@ -66,16 +66,34 @@ export class BrightDataService implements IBrightDataService {
 export class GeminiService implements IGeminiService {
   constructor(private apiKey: string) {}
 
-  async generateAdvisory(prompt: string): Promise<any> {
+  async generateAdvisory(prompt: string, language: string = 'en'): Promise<any> {
     if (!this.apiKey || this.apiKey.includes('YOUR_')) {
       throw new Error('GEMINI_API_KEY is missing or invalid. Please configure your API key in environment secrets.');
     }
 
+    // Multilingual Regional Indian Language Support Map
+    const languageNames: Record<string, string> = {
+      hi: 'Hindi (हिंदी)',
+      ml: 'Malayalam (മലയാളം)',
+      kn: 'Kannada (ಕನ್ನಡ)',
+      ta: 'Tamil (தமிழ்)',
+      te: 'Telugu (తెలుగు)',
+      mr: 'Marathi (मराठी)',
+      en: 'English'
+    };
+
+    const targetLang = languageNames[language] || 'English';
+
+    // System instruction instructing Gemini to output advisory in the farmer's native language
+    const fullPrompt = language && language !== 'en'
+      ? `[Target Language: ${targetLang}]\nRespond exclusively in ${targetLang} using simple, encouraging agrarian terminology for smallholder farmers.\n\n${prompt}`
+      : prompt;
+
     // Quota-Optimized Generation Config (Prevents token budget exhaustion)
     const payload = {
-      contents: [{ parts: [{ text: prompt }] }],
+      contents: [{ parts: [{ text: fullPrompt }] }],
       generationConfig: {
-        maxOutputTokens: 400, // Strict cap to prevent runaway token usage
+        maxOutputTokens: 450, // Cap response length to conserve token quota
         temperature: 0.3,     // Deterministic advisory outputs
         thinkingConfig: {
           thinkingLevel: 'LOW' // Fast reasoning without token bloat

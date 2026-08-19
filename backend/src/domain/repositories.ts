@@ -6,5 +6,5 @@ export interface IBrightDataService {
 }
 
 export interface IGeminiService {
-  generateAdvisory(prompt: string): Promise<any>;
+  generateAdvisory(prompt: string, language?: string): Promise<any>;
 }

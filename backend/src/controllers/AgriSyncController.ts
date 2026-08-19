@@ -9,7 +9,8 @@ const WebhookSchema = z.object({
 });
 
 const AdvisoryRequestSchema = z.object({
-  prompt: z.string().min(5, 'Prompt must be at least 5 characters long')
+  prompt: z.string().min(5, 'Prompt must be at least 5 characters long'),
+  language: z.string().optional().default('en')
 });
 
 export class AgriSyncController {
@@ -26,6 +27,7 @@ export class AgriSyncController {
       architecture: 'Domain -> Data -> Presentation (Strict Clean Architecture)',
       security: 'Helmet + RateLimiter + Zod Hardened + Server-Side Secrets',
       hackathon: 'Into the Scrape-Verse (Aug 17-23, 2026)',
+      languagesSupported: ['en', 'hi', 'ml', 'kn', 'ta', 'te', 'mr'],
       collectorId: this.collectorId,
       timestamp: new Date().toISOString()
     });
@@ -65,7 +67,7 @@ export class AgriSyncController {
     }
 
     try {
-      const result = await this.geminiService.generateAdvisory(parseResult.data.prompt);
+      const result = await this.geminiService.generateAdvisory(parseResult.data.prompt, parseResult.data.language);
       res.json(result);
     } catch (error: any) {
       console.error('Error proxying Gemini advisory:', error.message);
