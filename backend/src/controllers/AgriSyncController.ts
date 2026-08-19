@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { IBrightDataService, ICacheRepository } from '../domain/repositories';
+import { IBrightDataService } from '../domain/repositories';
 import { z } from 'zod';
 
 const WebhookSchema = z.object({
@@ -11,15 +11,14 @@ const WebhookSchema = z.object({
 export class AgriSyncController {
   constructor(
     private brightDataService: IBrightDataService,
-    private cache: ICacheRepository,
     private collectorId: string
   ) {}
 
   getHealth = (_req: Request, res: Response): void => {
     res.json({
-      service: 'AgriSync Bright Data DCA Proxy (Clean Architecture TypeScript)',
+      service: 'AgriSync Bright Data DCA Proxy (Stateless Clean Architecture)',
       status: 'ONLINE',
-      architecture: 'Domain -> Data -> Presentation (Strict SOLID)',
+      architecture: 'Domain -> Data -> Presentation (Stateless API Gateway)',
       security: 'Helmet + RateLimiter + Zod Hardened',
       hackathon: 'Into the Scrape-Verse (Aug 17-23, 2026)',
       collectorId: this.collectorId,
@@ -27,7 +26,7 @@ export class AgriSyncController {
     });
   };
 
-  triggerSync = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  triggerSync = async (_req: Request, res: Response, _next: NextFunction): Promise<void> => {
     try {
       const result = await this.brightDataService.triggerDCABatch();
       res.json(result);
@@ -62,15 +61,9 @@ export class AgriSyncController {
 
     const payload = parseResult.data;
     const targetId = payload.id || payload.collection_id;
-    console.log('Received DCA Webhook notification for collection:', targetId);
+    console.log('Received DCA Webhook completion notification for collection:', targetId);
 
-    if (targetId && payload.data) {
-      this.cache.set(targetId, {
-        status: 'READY',
-        timestamp: Date.now(),
-        data: payload.data
-      });
-    }
-    res.status(200).json({ status: 'ACCEPTED' });
+    // Stateless webhook acknowledgement
+    res.status(200).json({ status: 'ACCEPTED', collection_id: targetId });
   };
 }

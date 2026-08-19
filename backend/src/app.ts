@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import compression from 'compression';
 
-import { InMemoryCacheRepository, BrightDataService } from './data/repositories';
+import { BrightDataService } from './data/repositories';
 import { AgriSyncController } from './controllers/AgriSyncController';
 
 /**
@@ -59,20 +59,18 @@ export function createApp(): Application {
   app.use(express.json({ limit: '1mb' }));
   app.use(compression());
 
-  // ─── Dependency Injection Setup (SOLID Principles) ──────────────────────
+  // ─── Dependency Injection Setup (Stateless Gateway) ──────────────────────
   const BRIGHTDATA_API_KEY = process.env.BRIGHTDATA_API_KEY || '';
   const BRIGHTDATA_COLLECTOR_ID = process.env.BRIGHTDATA_COLLECTOR_ID || 'c_apmc_spice_v1_09x';
   const TARGET_APMC_URL = process.env.TARGET_APMC_URL || 'https://www.indianspices.com/marketing/price/domestic/current-market-price.html';
 
-  const cacheRepository = new InMemoryCacheRepository();
   const brightDataService = new BrightDataService(
     BRIGHTDATA_API_KEY,
     BRIGHTDATA_COLLECTOR_ID,
-    TARGET_APMC_URL,
-    cacheRepository
+    TARGET_APMC_URL
   );
 
-  const controller = new AgriSyncController(brightDataService, cacheRepository, BRIGHTDATA_COLLECTOR_ID);
+  const controller = new AgriSyncController(brightDataService, BRIGHTDATA_COLLECTOR_ID);
 
   // ─── Route Mapping ─────────────────────────────────────────────────────
   app.get('/', controller.getHealth);
